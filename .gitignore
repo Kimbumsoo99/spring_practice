@@ -213,4 +213,7 @@ replay_pid*
 .classpath
 .project
 target/*
-Servers/
+
+
+# 톰캣
+/Servers/*
