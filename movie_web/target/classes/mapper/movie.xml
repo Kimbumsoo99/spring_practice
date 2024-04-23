@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.movie.model.mapper.MovieMapper">
+	<resultMap type="movieDto" id="movie">
+		<result column="id" property="id"/>
+		<result column="title" property="title"/>
+		<result column="director" property="director"/>
+		<result column="genre" property="genre"/>
+		<result column="runningTime" property="runningTime"/>
+		<result column="img" property="img"/>
+	</resultMap>
+
+	<insert id="insert" parameterType="movieDto">
+		insert into movies (title, director, genre, runningTime)
+		values (#{title}, #{director}, #{genre}, #{runningTime})
+	</insert>
+	
+	<select id="findAll" resultMap="movie">
+		select id, title, director, genre, runningTime, img
+		from movies
+	</select>
+	
+	<select id="findById" resultMap="movie" parameterType="int">
+		select id, title, director, genre, runningTime, img
+		from movies
+		where id = #{id}
+	</select>
+	
+	<delete id="delete" parameterType="int">
+		delete
+		from movies
+		where id = #{id}
+	</delete>
+	
+	<update id="update" parameterType="movieDto">
+		update movies
+		set title = #{title}, director = #{director}, genre = #{genre}, runningTime = #{runningTime}, img = #{img}
+		where id = #{id}
+	</update>
+</mapper>
