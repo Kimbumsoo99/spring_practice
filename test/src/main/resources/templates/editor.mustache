@@ -4,6 +4,9 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatibe" content="ie=edge">
     <title>Document</title>
+<!--    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>-->
+<!--    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/translations/ko.js"></script>-->
+    <script src="/js/build/ckeditor.js"></script>
 </head>
 <body>
     editor
@@ -12,5 +15,10 @@
         <textarea name="content" id="content"></textarea><br>
         <input type="submit" value="등록">
     </form>
+    <script>
+        ClassicEditor.create(document.querySelector('#content'),{
+          language: "ko"
+        });
+    </script>
 </body>
 </html>
