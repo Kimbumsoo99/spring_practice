@@ -6,6 +6,8 @@ import com.editor.test.repository.ContentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ContentServiceImpl implements ContentService{
 
@@ -31,5 +33,10 @@ public class ContentServiceImpl implements ContentService{
 
         // INSERT INTO
         contentRepository.save(content1);
+    }
+
+    @Override
+    public List<ContentEntity> selectContent() {
+        return contentRepository.findAll();
     }
 }
