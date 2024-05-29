@@ -16,8 +16,12 @@
         <input type="submit" value="등록">
     </form>
     <script>
-        ClassicEditor.create(document.querySelector('#content'),{
-          language: "ko"
+        ClassicEditor.create( document.querySelector( '#content' ), {
+            language: "ko",
+            ckfinder : {
+                uploadUrl: "/image/upload",
+                withCredentials: true
+            }
         });
     </script>
 </body>
