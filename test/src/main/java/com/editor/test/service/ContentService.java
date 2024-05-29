@@ -10,4 +10,5 @@ public interface ContentService {
     List<ContentEntity> selectContent();
     ContentEntity selectOneContent(String id);
     void deleteOneContent(String id);
+    void updateOneContent(SaveDto saveDto, String id);
 }

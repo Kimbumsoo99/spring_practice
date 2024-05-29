@@ -32,6 +32,7 @@ public class ContentServiceImpl implements ContentService{
         content1.setContent(content);
 
         // INSERT INTO
+        // 참고로 이미 존재하는 PK에 대해서 save를 진해아면, UPDATE SET이 동작한다. -> JPA의 특성
         contentRepository.save(content1);
     }
 
@@ -40,6 +41,17 @@ public class ContentServiceImpl implements ContentService{
         int to = Integer.parseInt(id);
 
         return contentRepository.findById(to);
+    }
+
+    @Override
+    public void updateOneContent(SaveDto saveDto, String id) {
+        int to = Integer.parseInt(id);
+        ContentEntity content1 = new ContentEntity();
+        content1.setId(to);
+        content1.setTitle(saveDto.getTitle());
+        content1.setContent(saveDto.getContent());
+
+        contentRepository.save(content1);
     }
 
     @Override
