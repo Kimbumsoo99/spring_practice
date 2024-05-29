@@ -46,4 +46,10 @@ public class ContentServiceImpl implements ContentService{
     public List<ContentEntity> selectContent() {
         return contentRepository.findAll();
     }
+
+    @Override
+    public void deleteOneContent(String id) {
+        int to = Integer.parseInt(id);
+        contentRepository.deleteById(to);
+    }
 }
