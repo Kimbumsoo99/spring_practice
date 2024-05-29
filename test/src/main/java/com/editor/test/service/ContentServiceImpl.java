@@ -36,6 +36,13 @@ public class ContentServiceImpl implements ContentService{
     }
 
     @Override
+    public ContentEntity selectOneContent(String id) {
+        int to = Integer.parseInt(id);
+
+        return contentRepository.findById(to);
+    }
+
+    @Override
     public List<ContentEntity> selectContent() {
         return contentRepository.findAll();
     }

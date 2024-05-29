@@ -8,4 +8,5 @@ import java.util.List;
 public interface ContentService {
     void saveContent(SaveDto saveDto);
     List<ContentEntity> selectContent();
+    ContentEntity selectOneContent(String id);
 }
