@@ -9,14 +9,13 @@ import javax.sql.DataSource;
 @Configuration
 public class DBConfig {
 
-    @Bean
-    public DataSource getDataSource(){
-        return DataSourceBuilder.create()
-                .driverClassName("com.mysql.cj.jdbc.Driver")
-                .url("jdbc:mysql://127.0.0.1:3306/dbtest?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true")
-                .username("ssafy")
-                .password("ssafy")
-                .build();
-
-    }
+//    @Bean
+//    public DataSource getDataSource() {
+//        return DataSourceBuilder.create()
+//                .driverClassName("com.mysql.cj.jdbc.Driver")
+//                .url("jdbc:mysql://127.0.0.1:3306/dbtest?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true")
+//                .username("ssafy")
+//                .password("ssafy")
+//                .build();
+//    }
 }
