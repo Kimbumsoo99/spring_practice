@@ -33,8 +33,8 @@ public class SecurityConfig {
                         .permitAll()
                 );
 
-        http
-                .csrf(AbstractHttpConfigurer::disable);
+//        http
+//                .csrf(AbstractHttpConfigurer::disable);
 
         http
                 .sessionManagement((auth) -> auth
@@ -46,6 +46,11 @@ public class SecurityConfig {
                 .sessionManagement((auth) -> auth
                         .sessionFixation().changeSessionId()
                 );
+
+        // GET 방식의 Logout을 구현하기 위한 부분
+        http
+                .logout((auth) -> auth.logoutUrl("/logout")
+                        .logoutSuccessUrl("/"));
 
         return http.build();
     }
