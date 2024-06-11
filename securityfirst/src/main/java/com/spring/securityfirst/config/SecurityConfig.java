@@ -2,6 +2,8 @@ package com.spring.securityfirst.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,6 +22,20 @@ public class SecurityConfig {
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public RoleHierarchy roleHierarchy(){
+
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+
+        hierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER\n" +
+                "ROLE_USER > ROLE_GUEST");
+
+//        이 방식을 응용하면, USER보다 권한이 높은 ADMIN은 빼도 괜찮다. -> 계층이 많아질수록 편리해지는 기능
+//        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER") -> .requestMatchers("/my/**").hasRole("USER")
+
+        return hierarchy;
     }
 
     @Bean
