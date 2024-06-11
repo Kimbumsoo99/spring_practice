@@ -1,7 +1,6 @@
 package com.spring.securityfirst.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.asm.IModelFilter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
