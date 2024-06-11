@@ -36,6 +36,18 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable);
 
+        http
+                .sessionManagement((auth) -> auth
+                        .maximumSessions(1)             // 하나의 ID에 대한 다중 로그인 허용 개수
+                        .maxSessionsPreventsLogin(true) // 새로 로그인 되는 값을 초기화
+                );
+
+        http
+                .sessionManagement((auth) -> auth
+                        .sessionFixation().changeSessionId()
+                );
+
         return http.build();
     }
+
 }
