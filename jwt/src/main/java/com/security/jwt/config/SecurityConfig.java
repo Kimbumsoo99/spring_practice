@@ -1,5 +1,6 @@
 package com.security.jwt.config;
 
+import com.security.jwt.jwt.JWTFilter;
 import com.security.jwt.jwt.JWTUtil;
 import com.security.jwt.jwt.LoginFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/join").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
+                .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class)
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
