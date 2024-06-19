@@ -1,5 +1,6 @@
 package com.spring.oauthsession.service;
 
+import com.spring.oauthsession.dto.CustomOAuth2User;
 import com.spring.oauthsession.dto.GoogleResponse;
 import com.spring.oauthsession.dto.NaverResponse;
 import com.spring.oauthsession.dto.OAuth2Response;
@@ -26,6 +27,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return null;
         }
 
-        return null;
+        String role = "ROLE_USER";
+        return new CustomOAuth2User(oAuth2Response, role);
     }
+
 }
