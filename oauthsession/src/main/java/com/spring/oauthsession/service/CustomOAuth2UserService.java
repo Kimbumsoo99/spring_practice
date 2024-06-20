@@ -41,13 +41,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
         UserEntity existData = userRepository.findByUsername(username);
 
-        String role = null;
+        String role = "ROLE_USER";
 
         if (existData == null) {
             UserEntity user = new UserEntity();
             user.setUsername(username);
             user.setEmail(oAuth2Response.getEmail());
-            user.setRole("ROLE_USER");
+            user.setRole(role);
 
             userRepository.save(user);
         } else {
