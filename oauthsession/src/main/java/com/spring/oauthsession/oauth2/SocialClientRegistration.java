@@ -12,12 +12,12 @@ public class SocialClientRegistration {
         return ClientRegistration.withRegistrationId("naver")
                 .clientId("BeugClrniZApZo9fKSNQ")
                 .clientSecret("jCYFCkmDn7")
-                .redirectUri("http://localhost:8080/login/ouath2/code/naver")
+                .redirectUri("http://localhost:8080/login/oauth2/code/naver")
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .scope("name", "email")
                 .authorizationUri("https://nid.naver.com/oauth2.0/authorize")
                 .tokenUri("https://nid.naver.com/oauth2.0/token")
-                .userInfoUri("https://openapi.naver.com/v1/nid/ne")
+                .userInfoUri("https://openapi.naver.com/v1/nid/me")
                 .userNameAttributeName("response")
                 .build();
     }
