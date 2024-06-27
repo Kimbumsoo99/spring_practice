@@ -24,13 +24,14 @@ public class GradeRestController {
         try {
             String user = request.get("user").asText();
             String answerCode = request.get("answer").asText();
+            int testCaseCount = request.get("testCount").asInt();
 
             gradeService.saveSolution(user, answerCode);
-
-            gradeService.generateTestData();
+            gradeService.generateTestData(testCaseCount);
+            String result = gradeService.getUserResult();
 
             return ResponseEntity
-                    .ok("Solution saved successfully");
+                    .ok(result);
         } catch (Exception e) {
             return ResponseEntity
                     .status(500)
