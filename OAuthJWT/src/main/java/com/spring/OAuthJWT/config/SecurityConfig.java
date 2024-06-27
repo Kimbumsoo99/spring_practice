@@ -1,6 +1,9 @@
 package com.spring.OAuthJWT.config;
 
+import com.spring.OAuthJWT.jwt.JWTUtil;
+import com.spring.OAuthJWT.oauth2.CustomSuccessHandler;
 import com.spring.OAuthJWT.service.CustomOAuth2UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -15,9 +18,14 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomSuccessHandler customSuccessHandler;
+    private final JWTUtil jwtUtil;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+    @Autowired
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService, CustomSuccessHandler customSuccessHandler, JWTUtil jwtUtil) {
         this.customOAuth2UserService = customOAuth2UserService;
+        this.customSuccessHandler = customSuccessHandler;
+        this.jwtUtil = jwtUtil;
     }
 
     @Bean
@@ -28,7 +36,8 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .oauth2Login((auth) -> auth
                         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                                .userService(customOAuth2UserService)))
+                                .userService(customOAuth2UserService))
+                        .successHandler(customSuccessHandler))
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/").permitAll()
                         .anyRequest().authenticated())
