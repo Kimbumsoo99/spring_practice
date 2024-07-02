@@ -1,6 +1,8 @@
 package com.ssafy.member.model.service;
 
+import com.ssafy.member.model.domain.Member;
 import com.ssafy.member.model.dto.*;
+import com.ssafy.member.model.mapper.MemberMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -11,6 +13,12 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+    private final MemberMapper memberMapper;
+
+    public CustomOAuth2UserService(MemberMapper memberMapper) {
+        this.memberMapper = memberMapper;
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -32,13 +40,39 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         log.info("oAuth2Response - {}", oAuth2Response);
 
         //리소스 서버에서 발급 받은 정보로 사용자를 특정할 아이디값을 만듬
-        String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
+        String username = oAuth2Response.getProvider() + ":" + oAuth2Response.getProviderId();
+        System.out.println(username);
+        Member existData = memberMapper.findByMemberId(username);
+        System.out.println(existData);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(username);
-        userDTO.setName(oAuth2Response.getName());
-        userDTO.setRole("ROLE_USER");
+        if (existData == null) {
+            Member member = new Member();
+            member.setMemberId(username);
+            member.setEmail(oAuth2Response.getEmail());
+            member.setMemberName(oAuth2Response.getName());
+            member.setRole("ROLE_USER");
 
-        return new CustomOAuth2User(userDTO);
+            memberMapper.save(member);
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.setUsername(username);
+            userDTO.setName(oAuth2Response.getName());
+            userDTO.setRole("ROLE_USER");
+
+            return new CustomOAuth2User(userDTO);
+        }
+        else {
+            existData.setEmail(oAuth2Response.getEmail());
+            existData.setMemberName(oAuth2Response.getName());
+
+            System.out.println(existData);
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.setUsername(existData.getMemberName());
+            userDTO.setName(oAuth2Response.getName());
+            userDTO.setRole(existData.getRole());
+
+            return new CustomOAuth2User(userDTO);
+        }
     }
 }
