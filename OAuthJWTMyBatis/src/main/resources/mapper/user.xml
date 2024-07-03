@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.oauthjwt.mapper.UserMapper">
+
+    <resultMap type="com.example.oauthjwt.domain.User" id="user">
+        <result column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="name" property="name"/>
+        <result column="email" property="email"/>
+        <result column="role" property="role"/>
+    </resultMap>
+
+    <select id="findAll" parameterType="map" resultType="user">
+        select *
+        from user
+    </select>
+
+    <select id="findByUsername" parameterType="string" resultMap="user">
+        SELECT *
+        FROM user
+        WHERE username = #{username}
+    </select>
+
+    <insert id="save" parameterType="user">
+        INSERT INTO user (email, name, role, username)
+        VALUES (#{email}, #{name}, #{role}, #{username})
+    </insert>
+</mapper>
