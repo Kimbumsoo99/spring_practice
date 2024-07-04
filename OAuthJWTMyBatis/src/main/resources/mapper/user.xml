@@ -23,6 +23,12 @@
         WHERE username = #{username}
     </select>
 
+    <select id="existsByUsername" parameterType="string" resultMap="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE username = #{username}
+    </select>
+
     <insert id="save" parameterType="user">
         INSERT INTO user (email, name, role, username)
         VALUES (#{email}, #{name}, #{role}, #{username})
