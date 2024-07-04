@@ -8,4 +8,6 @@ public interface UserMapper {
     User findByUsername(String username);
     void save(User user);
     int existsByUsername(String username);
+
+    int existsByEmail(String email);
 }
