@@ -3,15 +3,19 @@ package com.ssafy.memberPjt.service;
 import com.ssafy.memberPjt.dto.JoinDTO;
 import com.ssafy.memberPjt.dto.JwtTokenDTO;
 import com.ssafy.memberPjt.dto.LoginDTO;
+import com.ssafy.memberPjt.entity.RefreshToken;
 import com.ssafy.memberPjt.entity.User;
 import com.ssafy.memberPjt.exception.EmailAlreadyExistsException;
 import com.ssafy.memberPjt.exception.UserNotFoundException;
 import com.ssafy.memberPjt.jwt.JWTUtil;
+import com.ssafy.memberPjt.repository.RefreshRepository;
 import com.ssafy.memberPjt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class UserService {
         JwtTokenDTO jwtTokenDTO = new JwtTokenDTO();
         jwtTokenDTO.setAccess(jwtUtil.createJwt("access", username, role, 1000 * 60 * 10L));
         jwtTokenDTO.setRefresh(jwtUtil.createJwt("refresh", username, role, 1000 * 60 * 60 * 24L));
+
         return jwtTokenDTO;
     }
 
@@ -58,9 +63,9 @@ public class UserService {
 
         System.out.println("data = " + data);
 
-        try{
+        try {
             userRepository.save(data);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

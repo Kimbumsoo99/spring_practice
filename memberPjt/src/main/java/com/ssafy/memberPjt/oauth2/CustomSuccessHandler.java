@@ -2,7 +2,9 @@ package com.ssafy.memberPjt.oauth2;
 
 import com.ssafy.memberPjt.dto.CustomOAuth2User;
 import com.ssafy.memberPjt.dto.JwtTokenDTO;
+import com.ssafy.memberPjt.entity.RefreshToken;
 import com.ssafy.memberPjt.jwt.JWTUtil;
+import com.ssafy.memberPjt.repository.RefreshRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +15,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Date;
 
 import static com.ssafy.memberPjt.util.CookieUtil.*;
 
@@ -22,6 +25,7 @@ import static com.ssafy.memberPjt.util.CookieUtil.*;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -48,6 +52,17 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
+        addRefreshToken(username, refresh, 86400000L);
         response.sendRedirect("http://localhost:3001/");
+    }
+    private void addRefreshToken(String username, String refresh, Long expiredMs) {
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setUsername(username);
+        refreshToken.setRefresh(refresh);
+        refreshToken.setExpiration(date.toString());
+
+        refreshRepository.save(refreshToken);
     }
 }

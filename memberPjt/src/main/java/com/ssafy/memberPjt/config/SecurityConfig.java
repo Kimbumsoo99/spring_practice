@@ -3,6 +3,7 @@ package com.ssafy.memberPjt.config;
 import com.ssafy.memberPjt.jwt.*;
 import com.ssafy.memberPjt.oauth2.CustomFailureHandler;
 import com.ssafy.memberPjt.oauth2.CustomSuccessHandler;
+import com.ssafy.memberPjt.repository.RefreshRepository;
 import com.ssafy.memberPjt.service.CustomOAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ import java.util.List;
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
