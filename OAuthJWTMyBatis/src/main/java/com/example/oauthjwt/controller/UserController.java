@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @Slf4j
 public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/join")
+    @PostMapping
     public ResponseEntity<ApiResponse<Void>> joinProcess(JoinDTO joinDTO) {
         log.info("UserController.joinProcess joinDTO - {}", joinDTO);
         userService.joinProcess(joinDTO);
