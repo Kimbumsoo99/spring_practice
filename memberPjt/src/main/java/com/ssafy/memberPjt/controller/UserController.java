@@ -71,6 +71,19 @@ public class UserController {
         return new ResponseEntity<>(responseData, HttpStatus.OK);
     }
 
+//    @PostMapping("/logout")
+//    public ResponseEntity<ApiResponse<Void>> logoutProcess() {
+//        log.info("UserController.logoutProcess");
+//
+//        ApiResponse<Void> responseData = new ApiResponse<>(
+//                "success",
+//                null, // data is null because it's not needed for this response
+//                "logout Success",
+//                null
+//        );
+//        return new ResponseEntity<>(responseData, HttpStatus.OK);
+//    }
+
     @PostMapping("/reissue")
     public ResponseEntity<ApiResponse<Void>> reissue(HttpServletRequest request, HttpServletResponse response) {
         String refresh = null;
