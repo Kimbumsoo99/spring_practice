@@ -24,3 +24,11 @@ export function call(api, method, request) {
             console.log(error);
         });
 }
+
+export function signin(userDTO) {
+    return call("/auth/signin", "POST", userDTO).then((res) => {
+        if (res.token) {
+            window.location.href = "/";
+        }
+    });
+}

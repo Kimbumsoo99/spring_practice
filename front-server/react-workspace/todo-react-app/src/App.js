@@ -4,7 +4,7 @@ import Todo from "./Todo";
 import { useEffect, useState } from "react";
 import { Container, List, Paper } from "@mui/material";
 import AddTodo from "./AddTodo";
-import { call } from "./AppService";
+import { call } from "./ApiService";
 
 function App() {
     const [items, setItem] = useState([]);
@@ -34,7 +34,12 @@ function App() {
         <Paper style={{ margin: 16 }}>
             <List>
                 {items.map((item) => (
-                    <Todo item={item} key={item.id} editItem={editItem} deleteItem={deleteItem} />
+                    <Todo
+                        item={item}
+                        key={item.id}
+                        editItem={editItem}
+                        deleteItem={deleteItem}
+                    />
                 ))}
             </List>
         </Paper>
