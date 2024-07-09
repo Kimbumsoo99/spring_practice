@@ -56,7 +56,6 @@ public class UserController {
         String access = jwtToken.getAccess();
         String refresh = jwtToken.getRefresh();
 
-
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
 

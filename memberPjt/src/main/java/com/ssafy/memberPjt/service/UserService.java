@@ -29,7 +29,7 @@ public class UserService {
     public JwtTokenDTO loginProcess(LoginDTO loginDTO) {
         String username = loginDTO.getUsername();
         User user = userRepository.findByUsername(username);
-        if (!userRepository.existsByUsername(username)) {
+        if (!userRepository.existsByUsername(username) || !user.getPassword().equals(loginDTO.getPassword())) {
             throw new UserNotFoundException("아이디 또는 비밀번호가 잘못입력됐습니다.");
         }
 

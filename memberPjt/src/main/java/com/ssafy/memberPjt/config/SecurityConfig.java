@@ -71,7 +71,7 @@ public class SecurityConfig {
                         .requestMatchers(POST, "/api/user/**").permitAll()
                         .requestMatchers(GET, "/api/my").hasRole("USER")
                         .requestMatchers("/api/**").authenticated())
-//                .addFilterBefore(new JwtAuthenticationTokenFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationTokenFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class)
                 .build();
