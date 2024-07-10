@@ -12,6 +12,7 @@ import com.ssafy.memberPjt.repository.RefreshRepository;
 import com.ssafy.memberPjt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,24 +24,25 @@ import java.util.Date;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JWTUtil jwtUtil;
 
 
-    public JwtTokenDTO loginProcess(LoginDTO loginDTO) {
-        String username = loginDTO.getUsername();
-        User user = userRepository.findByUsername(username);
-        if (!userRepository.existsByUsername(username) || !user.getPassword().equals(loginDTO.getPassword())) {
-            throw new UserNotFoundException("아이디 또는 비밀번호가 잘못입력됐습니다.");
-        }
-
-        String role = user.getRole();
-
-        JwtTokenDTO jwtTokenDTO = new JwtTokenDTO();
-        jwtTokenDTO.setAccess(jwtUtil.createJwt("access", username, role, 1000 * 60 * 10L));
-        jwtTokenDTO.setRefresh(jwtUtil.createJwt("refresh", username, role, 1000 * 60 * 60 * 24L));
-
-        return jwtTokenDTO;
-    }
+//    public JwtTokenDTO loginProcess(LoginDTO loginDTO) {
+//        String username = loginDTO.getUsername();
+//        User user = userRepository.findByUsername(username);
+//        if (!userRepository.existsByUsername(username) || !user.getPassword().equals(loginDTO.getPassword())) {
+//            throw new UserNotFoundException("아이디 또는 비밀번호가 잘못입력됐습니다.");
+//        }
+//
+//        String role = user.getRole();
+//
+//        JwtTokenDTO jwtTokenDTO = new JwtTokenDTO();
+//        jwtTokenDTO.setAccess(jwtUtil.createJwt("access", username, role, 1000 * 60 * 10L));
+//        jwtTokenDTO.setRefresh(jwtUtil.createJwt("refresh", username, role, 1000 * 60 * 60 * 24L));
+//
+//        return jwtTokenDTO;
+//    }
 
     @Transactional
     public void joinProcess(JoinDTO joinDTO) {
@@ -56,7 +58,7 @@ public class UserService {
 
         User data = new User();
         data.setUsername(username);
-        data.setPassword(password);
+        data.setPassword(bCryptPasswordEncoder.encode(password));
         data.setRole("ROLE_ADMIN");
         data.setName(name);
         data.setEmail(email);
@@ -75,6 +77,10 @@ public class UserService {
         } else {
             System.out.println("User save failed.");
         }
+    }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
 }

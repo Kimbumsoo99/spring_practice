@@ -47,28 +47,28 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Void>> loginProcess(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
-        log.info("UserController.loginProcess loginDTO - {}", loginDTO);
-
-        JwtTokenDTO jwtToken = userService.loginProcess(loginDTO); // Cookie 생성 후 Authorization에 삽입해서 반환
-
-        String access = jwtToken.getAccess();
-        String refresh = jwtToken.getRefresh();
-
-        response.setHeader("access", access);
-        response.addCookie(createCookie("refresh", refresh));
-
-        addRefreshToken(loginDTO.getUsername(), refresh, 86400000L);
-
-        ApiResponse<Void> responseData = new ApiResponse<>(
-                "success",
-                null, // data is null because it's not needed for this response
-                "loginProcess successful",
-                null
-        );
-        return new ResponseEntity<>(responseData, HttpStatus.OK);
-    }
+//    @PostMapping("/login")
+//    public ResponseEntity<ApiResponse<Void>> loginProcess(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+//        log.info("UserController.loginProcess loginDTO - {}", loginDTO);
+//
+//        JwtTokenDTO jwtToken = userService.loginProcess(loginDTO); // Cookie 생성 후 Authorization에 삽입해서 반환
+//
+//        String access = jwtToken.getAccess();
+//        String refresh = jwtToken.getRefresh();
+//
+//        response.setHeader("access", access);
+//        response.addCookie(createCookie("refresh", refresh));
+//
+//        addRefreshToken(loginDTO.getUsername(), refresh, 86400000L);
+//
+//        ApiResponse<Void> responseData = new ApiResponse<>(
+//                "success",
+//                null, // data is null because it's not needed for this response
+//                "loginProcess successful",
+//                null
+//        );
+//        return new ResponseEntity<>(responseData, HttpStatus.OK);
+//    }
 
 //    @PostMapping("/logout")
 //    public ResponseEntity<ApiResponse<Void>> logoutProcess() {
@@ -125,10 +125,11 @@ public class UserController {
 
         String username = jwtUtil.getUsername(refresh);
         String role = jwtUtil.getRole(refresh);
+        Boolean oauth2 = jwtUtil.isOAuth2(refresh);
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+        String newAccess = jwtUtil.createJwt("access", oauth2, username, role, 600000L);
+        String newRefresh = jwtUtil.createJwt("refresh", oauth2, username, role, 86400000L);
 
         //response
         response.setHeader("access", newAccess);

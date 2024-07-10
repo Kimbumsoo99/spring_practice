@@ -34,7 +34,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         //OAuth2User
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
 
+        System.out.println(customUserDetails);
+
         String username = customUserDetails.getUsername();
+
+        System.out.println(username);
 
         String role = customUserDetails
                 .getAuthorities()
@@ -44,8 +48,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .getAuthority();
 
         JwtTokenDTO jwtToken = new JwtTokenDTO();
-        jwtToken.setAccess(jwtUtil.createJwt("access", username, role, 1000 * 60 * 10L));
-        jwtToken.setRefresh(jwtUtil.createJwt("refresh", username, role, 1000 * 60 * 60 * 24L));
+        jwtToken.setAccess(jwtUtil.createJwt("access", true, username, role, 1000 * 60 * 10L));
+        jwtToken.setRefresh(jwtUtil.createJwt("refresh", true, username, role, 1000 * 60 * 60 * 24L));
 
         String access = jwtToken.getAccess();
         String refresh = jwtToken.getRefresh();

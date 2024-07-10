@@ -35,4 +35,4 @@ const ReIssue: React.FC<ReactCookieProps> = () => {
   );
 };
 
-export default withCookies(ReIssue);
+export default ReIssue;

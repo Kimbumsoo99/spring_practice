@@ -1,7 +1,10 @@
 package com.ssafy.memberPjt.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ssafy.memberPjt.dto.JwtTokenDTO;
 import com.ssafy.memberPjt.dto.LoginDTO;
+import com.ssafy.memberPjt.entity.RefreshToken;
+import com.ssafy.memberPjt.repository.RefreshRepository;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,20 +22,29 @@ import org.springframework.util.StreamUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 import static com.ssafy.memberPjt.util.CookieUtil.createCookie;
 
-@RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
+
+    public JwtAuthenticationTokenFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
+        setFilterProcessesUrl("/api/user/login");
+    }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        log.info("JwtAuthenticationTokenFilter.doFilter");
-        chain.doFilter(request, response);
+        log.info("JwtAuthenticationTokenFilter");
+
+        super.doFilter(request, response, chain);
     }
 
     @Override
@@ -55,8 +67,11 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
         log.info("username - {}", username);
         log.info("password - {}", password);
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password, null);
+        System.out.println(loginDTO);
 
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
+
+        log.info("authToken - {}", authToken.toString());
         return authenticationManager.authenticate(authToken);
     }
 
@@ -70,6 +85,8 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
         GrantedAuthority auth = it.next();
         String role = auth.getAuthority();
 
+        System.out.println(username + " : " + role);
+
         // token generate
 //        String access = jwtUtil.createJwt("access", username, role, 600000L);
 //        String refresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
@@ -79,15 +96,33 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
         // response config
 //        response.setHeader("access", access);
 
-        String token = jwtUtil.createJwt("", username, role, 60*60*60*60L);
-        response.addCookie(createCookie("Authorization", token));
-        System.out.println("token = " + token);
+        JwtTokenDTO jwtToken = new JwtTokenDTO();
+        jwtToken.setAccess(jwtUtil.createJwt("access", false, username, role, 1000 * 60 * 10L));
+        jwtToken.setRefresh(jwtUtil.createJwt("refresh", false, username, role, 1000 * 60 * 60 * 24L));
+
+        String access = jwtToken.getAccess();
+        String refresh = jwtToken.getRefresh();
+
+        response.setHeader("access", access);
+        response.addCookie(createCookie("refresh", refresh));
+        addRefreshToken(username, refresh, 86400000L);
         response.setStatus(HttpStatus.OK.value());
+    }
+
+    private void addRefreshToken(String username, String refresh, Long expiredMs) {
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setUsername(username);
+        refreshToken.setRefresh(refresh);
+        refreshToken.setExpiration(date.toString());
+
+        refreshRepository.save(refreshToken);
     }
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         log.info("JwtAuthenticationTokenFilter.unsuccessfulAuthentication");
-
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
     }
 }
