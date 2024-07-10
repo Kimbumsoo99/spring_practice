@@ -51,12 +51,12 @@ public class UserController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticate(@RequestBody UserDTO userDTO) {
-        System.out.println(userDTO);
         UserEntity user = userService.getByCredentials(
                 userDTO.getUsername(),
                 userDTO.getPassword(),
                 passwordEncoder
         );
+        log.info("user find {}", user);
 
         if (user != null) {
             final String token = tokenProvider.create(user);

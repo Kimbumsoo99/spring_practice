@@ -53,7 +53,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
         addRefreshToken(username, refresh, 86400000L);
-        response.sendRedirect("http://localhost:3001/");
+        response.sendRedirect("http://localhost:5173/");
     }
     private void addRefreshToken(String username, String refresh, Long expiredMs) {
         Date date = new Date(System.currentTimeMillis() + expiredMs);
