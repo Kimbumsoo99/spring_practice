@@ -8,6 +8,8 @@ import com.ssafy.memberPjt.repository.RefreshRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -56,16 +58,18 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         response.setHeader("access", access);
         response.addCookie(createCookie("refresh", refresh));
-        addRefreshToken(username, refresh, 86400000L);
+        addRefreshToken(username, refresh);
         response.sendRedirect("http://localhost:5173/");
     }
-    private void addRefreshToken(String username, String refresh, Long expiredMs) {
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
+    private void addRefreshToken(String username, String refresh) {
+        LocalDateTime expirationDate = LocalDateTime.now().plusMonths(1);
+        long expirationTime = Timestamp.valueOf(expirationDate).getTime();
 
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUsername(username);
-        refreshToken.setRefresh(refresh);
-        refreshToken.setExpiration(date.toString());
+        RefreshToken refreshToken = RefreshToken.builder()
+            .username(username)
+            .refresh(refresh)
+            .expiration(expirationTime)
+            .build();
 
         refreshRepository.save(refreshToken);
     }

@@ -1,11 +1,9 @@
 package com.ssafy.memberPjt.repository;
 
 import com.ssafy.memberPjt.entity.RefreshToken;
-import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.CrudRepository;
 
-public interface RefreshRepository extends JpaRepository<RefreshToken, Long> {
+public interface RefreshRepository extends CrudRepository<RefreshToken, Long> {
     Boolean existsByRefresh(String refresh);
-    @Transactional
     void deleteByRefresh(String refresh);
 }
