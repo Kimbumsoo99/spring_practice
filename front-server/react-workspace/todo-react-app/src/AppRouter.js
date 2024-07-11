@@ -24,6 +24,7 @@ function AppRouter() {
                     <Route path="/" element={<App />} />
                     <Route path="login" element={<Login />} />
                     <Route path="signup" element={<SignUp />} />
+                    <Route path="oauth2/code" element={<OAuth2 />} />
                 </Routes>
             </BrowserRouter>
             <Box mt={5}>
