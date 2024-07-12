@@ -24,6 +24,7 @@ const Login: React.FC = () => {
             },
         })
             .then((res) => {
+                console.log(res);
                 let accessToken = res.headers["access"];
                 console.log("access", accessToken);
                 console.log(res.headers);
@@ -33,9 +34,7 @@ const Login: React.FC = () => {
             })
             .catch((err) => {
                 console.log(err);
-                setError(
-                    "Login failed. Please check your credentials and try again."
-                );
+                setError("Login failed. Please check your credentials and try again.");
             });
     };
 
@@ -74,18 +73,10 @@ const Login: React.FC = () => {
                     Login
                 </button>
             </form>
-            <button
-                type="button"
-                style={styles.button}
-                onClick={() => onOAuth2Login("naver")}
-            >
+            <button type="button" style={styles.button} onClick={() => onOAuth2Login("naver")}>
                 Naver
             </button>
-            <button
-                type="button"
-                style={styles.button}
-                onClick={() => onOAuth2Login("google")}
-            >
+            <button type="button" style={styles.button} onClick={() => onOAuth2Login("google")}>
                 Google
             </button>
         </div>
