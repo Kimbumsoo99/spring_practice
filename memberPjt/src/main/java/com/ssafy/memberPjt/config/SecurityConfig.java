@@ -3,6 +3,7 @@ package com.ssafy.memberPjt.config;
 import com.ssafy.memberPjt.jwt.*;
 import com.ssafy.memberPjt.oauth2.CustomFailureHandler;
 import com.ssafy.memberPjt.oauth2.CustomSuccessHandler;
+import com.ssafy.memberPjt.oauth2.RedirectUrlCookieFilter;
 import com.ssafy.memberPjt.repository.RefreshRepository;
 import com.ssafy.memberPjt.service.CustomOAuth2UserService;
 import com.ssafy.memberPjt.service.CustomUserDetailsService;
@@ -20,6 +21,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -46,6 +48,7 @@ public class SecurityConfig {
     private final CustomSuccessHandler customSuccessHandler;
     private final CustomFailureHandler customFailureHandler;
     private final CustomUserDetailsService customUserDetailsService;
+    private final RedirectUrlCookieFilter redirectUrlCookieFilter;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -82,6 +85,7 @@ public class SecurityConfig {
                 .addFilterAt(new JwtAuthenticationTokenFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JWTFilter(jwtUtil, customUserDetailsService), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class)
+                .addFilterBefore(redirectUrlCookieFilter, OAuth2AuthorizationRequestRedirectFilter.class)
                 .build();
     }
 

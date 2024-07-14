@@ -26,12 +26,15 @@ import java.io.PrintWriter;
 @RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
 
+    private static final String REDIRECT_URI_PARAM = "redirect_uri";
+
     private final JWTUtil jwtUtil;
     private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        log.info("JWTFilter");
+        log.info("JWTFilter {}", REDIRECT_URI_PARAM);
+
         String accessToken = request.getHeader("access");
 
         // 토큰이 없다면 다음 필터로 넘김

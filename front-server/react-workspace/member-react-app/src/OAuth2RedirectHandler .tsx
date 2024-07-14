@@ -14,7 +14,7 @@ const OAuth2RedirectHandler = (props) => {
 
     if (token) {
         console.log("로컬 스토리지 토큰 저장", token);
-        localStorage.setItem("ACCESS_TOKEN", token);
+        localStorage.setItem("Token", token);
         return (
             <Navigate
                 to={{

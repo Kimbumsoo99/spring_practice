@@ -13,4 +13,14 @@ public class CookieUtil {
 
         return cookie;
     }
+
+    public static Cookie createCookie(String key, String value, int maxAge) {
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(maxAge);
+//        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
 }

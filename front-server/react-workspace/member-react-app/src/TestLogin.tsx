@@ -38,8 +38,8 @@ const Login: React.FC = () => {
             });
     };
 
-    const onOAuth2Login = (code) => {
-        window.location.href = `http://localhost:8080/oauth2/authorization/${code}`;
+    const onOAuth2Login = (provider) => {
+        window.location.href = `http://localhost:8080/oauth2/authorization/${provider}?redirect_url=${window.location.origin}`;
     };
 
     return (
@@ -48,25 +48,11 @@ const Login: React.FC = () => {
             <form onSubmit={onFinish} style={styles.form}>
                 <div style={styles.formGroup}>
                     <label htmlFor="username">Username:</label>
-                    <input
-                        type="username"
-                        id="username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                        style={styles.input}
-                    />
+                    <input type="username" id="username" value={username} onChange={(e) => setUsername(e.target.value)} required style={styles.input} />
                 </div>
                 <div style={styles.formGroup}>
                     <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={styles.input}
-                    />
+                    <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={styles.input} />
                 </div>
                 {error && <p style={styles.error}>{error}</p>}
                 <button type="submit" style={styles.button}>
