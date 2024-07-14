@@ -1,23 +1,38 @@
-import React, { useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import React from "react";
+import { Navigate } from "react-router-dom";
 
-const OAuth2RedirectHandler = () => {
-    const history = useHistory();
+const OAuth2RedirectHandler = (props) => {
+    const getUrlParameter = (name) => {
+        const search = window.location.search;
+        const params = new URLSearchParams(search);
+        return params.get(name);
+    };
 
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const token = params.get("token");
+    const token = getUrlParameter("token");
 
-        if (token) {
-            localStorage.setItem("jwtToken", token);
-            history.push("/");
-        } else {
-            // Handle error case
-            history.push("/login");
-        }
-    }, [history]);
+    console.log("토큰", token);
 
-    return <div>Redirecting...</div>;
+    if (token) {
+        console.log("로컬 스토리지 토큰 저장", token);
+        localStorage.setItem("ACCESS_TOKEN", token);
+        return (
+            <Navigate
+                to={{
+                    pathname: "/",
+                    state: { from: props.location },
+                }}
+            />
+        );
+    } else {
+        return (
+            <Navigate
+                to={{
+                    pathname: "/login",
+                    state: { from: props.location },
+                }}
+            />
+        );
+    }
 };
 
 export default OAuth2RedirectHandler;
