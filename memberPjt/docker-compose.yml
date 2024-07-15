@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ssafytest?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: ssafy
+      SPRING_DATASOURCE_PASSWORD: ssafy
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: ssafy
+      MYSQL_DATABASE: ssafytest
+      MYSQL_USER: ssafy
+      MYSQL_PASSWORD: ssafy
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
