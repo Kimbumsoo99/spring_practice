@@ -35,6 +35,11 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
 
+    private static final long ACCESS_TIME_EXPIRED_MS = 1000 * 60 * 10L;
+    private static final long REFRESH_TIME_EXPIRED_MS = 1000 * 60 * 60 * 24L;
+
+
+
     public JwtAuthenticationTokenFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -99,8 +104,10 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
 //        response.setHeader("access", access);
 
         JwtTokenDTO jwtToken = new JwtTokenDTO();
-        jwtToken.setAccess(jwtUtil.createJwt("access", false, username, role, 1000 * 60 * 10L));
-        jwtToken.setRefresh(jwtUtil.createJwt("refresh", false, username, role, 1000 * 60 * 60 * 24L));
+        jwtToken.setAccess(jwtUtil.createJwt("access", false, username, role, ACCESS_TIME_EXPIRED_MS));
+        jwtToken.setRefresh(jwtUtil.createJwt("refresh", false, username, role, REFRESH_TIME_EXPIRED_MS));
+
+        long expiredMs = System.currentTimeMillis() + ACCESS_TIME_EXPIRED_MS;
 
         String access = jwtToken.getAccess();
         String refresh = jwtToken.getRefresh();
@@ -116,10 +123,10 @@ public class JwtAuthenticationTokenFilter extends UsernamePasswordAuthentication
         long expirationTime = Timestamp.valueOf(expirationDate).getTime();
 
         RefreshToken refreshToken = RefreshToken.builder()
-            .username(username)
-            .refresh(refresh)
-            .expiration(expirationTime)
-            .build();
+                .username(username)
+                .refresh(refresh)
+                .expiration(expirationTime)
+                .build();
 
         refreshRepository.save(refreshToken);
     }
