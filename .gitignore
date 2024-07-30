@@ -229,4 +229,6 @@ application-local.properties
 # Other sensitive files
 .env
 
-**/src/main/resources/serviceAccountKey.json
+# 민감한 파일 무시
+**/serviceAccountKey.json
+**/server.p12
