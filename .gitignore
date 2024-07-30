@@ -228,3 +228,5 @@ application-local.properties
 
 # Other sensitive files
 .env
+
+**/src/main/resources/serviceAccountKey.json
