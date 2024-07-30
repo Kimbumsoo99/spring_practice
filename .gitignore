@@ -217,3 +217,14 @@ target/*
 
 # 톰캣
 /Servers/*
+
+# SSL certificates and keys
+server.key
+server.cert
+server.p12
+
+# Local application properties
+application-local.properties
+
+# Other sensitive files
+.env
