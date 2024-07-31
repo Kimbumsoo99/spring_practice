@@ -1,47 +1,45 @@
-// src/App.tsx
-import React, { useEffect, useState } from "react";
-import { getToken, onMessageListener } from "./firebase";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import { getFcmToken, onMessageListener } from './firebase';
 
 const App: React.FC = () => {
-    const [isTokenFound, setTokenFound] = useState(false);
-    const [notification, setNotification] = useState<{ title: string; body: string }>({ title: "", body: "" });
+  const [token, setToken] = useState<string | null>('');
+  const [notification, setNotification] = useState<{ title: string; body: string }>({ title: '', body: '' });
 
-    useEffect(() => {
-        getToken(setTokenFound);
-    }, []);
+  useEffect(() => {
+    getFcmToken().then((currentToken) => {
+      if (currentToken) {
+        setToken(currentToken);
+        fetch('https://localhost:8443/api/fcm/register', { // 서버 URL 확인
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ token: currentToken }),
+        }).catch(error => console.error('Error:', error));
+      }
+    });
+  
+    onMessageListener().then((payload) => {
+      setNotification({ title: payload.data.title, body: payload.data.body });
+    }).catch(err => console.log('failed: ', err));
+  }, []);
 
-    useEffect(() => {
-        onMessageListener()
-            .then((payload) => {
-                setNotification({ title: payload.notification?.title || "", body: payload.notification?.body || "" });
-                console.log(payload);
-            })
-            .catch((err) => console.log("failed: ", err));
-    }, []);
+  const sendTestNotification = () => {
+    fetch('https://localhost:8443/api/fcm/sendTest')
+      .then(() => console.log('Test notification sent'))
+      .catch(error => console.error('Error:', error));
+  };
 
-    const sendNotification = async () => {
-        try {
-            const response = await axios.post("https://localhost:8443/api/notifications/send", {
-                token: "RECIPIENT_FCM_TOKEN", // 여기에 실제 수신자의 FCM 토큰을 사용
-                title: "Test Notification",
-                body: "This is a test notification from the frontend.",
-            });
-            console.log("Notification sent successfully:", response.data);
-        } catch (error) {
-            console.error("Error sending notification:", error);
-        }
-    };
-
-    return (
-        <div>
-            {isTokenFound ? <p>Notification permission enabled.</p> : <p>Need notification permission.</p>}
-            <h2>Notification:</h2>
-            <p>{notification.title}</p>
-            <p>{notification.body}</p>
-            <button onClick={sendNotification}>Send Notification</button>
-        </div>
-    );
+  return (
+    <div>
+      <h1>FCM with React</h1>
+      <p>Token: {token}</p>
+      <h2>Notification:</h2>
+      <p>Title: {notification.title}</p>
+      <p>Body: {notification.body}</p>
+      <button onClick={sendTestNotification}>Send Test Notification</button>
+    </div>
+  );
 };
 
 export default App;

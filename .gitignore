@@ -232,3 +232,4 @@ application-local.properties
 # 민감한 파일 무시
 **/serviceAccountKey.json
 **/server.p12
+**/.env
