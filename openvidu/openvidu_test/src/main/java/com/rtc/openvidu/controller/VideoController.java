@@ -16,43 +16,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "*")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/video")
 @Slf4j
-@RequiredArgsConstructor
 public class VideoController {
-
-    private final OpenViduService openViduService;
-    private OpenVidu openVidu;
-    private Map<String, Session> sessions = new ConcurrentHashMap<>();
-
     @Value("${openvidu.url}")
-    String openviduUrl;
+    private String OPENVIDU_URL;
+
     @Value("${openvidu.secret}")
-    String openviduSecret;
+    private String OPENVIDU_SECRET;
+
+    private OpenVidu openvidu;
 
     @PostConstruct
     public void init() {
-        this.openVidu = new OpenVidu(openviduUrl, openviduSecret);
-    }
-
-    @GetMapping("/get-token")
-    public ResponseEntity<String> getToken(@RequestParam String sessionName) {
-        try {
-            Session session;
-            if (this.sessions.containsKey(sessionName)) {
-                session = this.sessions.get(sessionName);
-            } else {
-                session = this.openVidu.createSession();
-                this.sessions.put(sessionName, session);
-            }
-            String token = session.generateToken(new TokenOptions.Builder().build());
-            return new ResponseEntity<>(token, HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        this.openvidu = new OpenVidu(OPENVIDU_URL, OPENVIDU_SECRET);
     }
 
     /**
@@ -62,8 +42,15 @@ public class VideoController {
     @PostMapping("/sessions")
     public ResponseEntity<String> initializeSession(@RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
-        String sessionId = openViduService.createSession(params);
-        return new ResponseEntity<>(sessionId, HttpStatus.OK);
+
+        // 파라미터 수정
+        if (params != null && "MEDIA_SERVER_PREFERRED".equals(params.get("forcedVideoCodec"))) {
+            params.put("forcedVideoCodec", "VP8"); // 올바른 값으로 변경
+        }
+
+        SessionProperties properties = SessionProperties.fromJson(params).build();
+        Session session = openvidu.createSession(properties);
+        return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
 
     /**
@@ -75,12 +62,21 @@ public class VideoController {
     public ResponseEntity<String> createConnection(@PathVariable("sessionId") String sessionId,
                                                    @RequestBody(required = false) Map<String, Object> params)
             throws OpenViduJavaClientException, OpenViduHttpException {
-        log.info("Received request to create connection for session: {}", sessionId);
-        log.info("Request parameters: {}", params);
+        log.info("Connection SessionId - {}", sessionId);
+        Session session = openvidu.getActiveSession(sessionId);
+        if (session == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
 
-        String token = openViduService.createConnection(sessionId, params);
-        return new ResponseEntity<>(token, HttpStatus.OK);
+        log.info("Modified params: {}", params);
+        ConnectionProperties properties = ConnectionProperties.fromJson(params).build();
+        log.info("OPENVIDU_URL: {}", OPENVIDU_URL);
+        Connection connection = session.createConnection(properties);
+        log.info("connection: {}", connection);
+        return new ResponseEntity<>(connection.getToken(), HttpStatus.OK);
     }
+
+
 
     /**
      * Start recording a session
@@ -88,14 +84,15 @@ public class VideoController {
      * @return The Recording ID
      */
     @PostMapping("/sessions/{sessionId}/recordings/start")
-    public ResponseEntity<String> startRecording(@PathVariable("sessionId") String sessionId)
-            throws OpenViduJavaClientException, OpenViduHttpException {
+    public ResponseEntity<String> startRecording(@PathVariable("sessionId") String sessionId) throws OpenViduJavaClientException, OpenViduHttpException {
         System.out.println("녹화시작");
         RecordingProperties properties = new RecordingProperties.Builder()
                 .outputMode(Recording.OutputMode.COMPOSED)
+                .hasAudio(true)
+                .hasVideo(true)
                 .build();
-        String recordingId = openViduService.startRecording(sessionId, properties);
-        return new ResponseEntity<>(recordingId, HttpStatus.OK);
+        Recording recording = this.openvidu.startRecording(sessionId, properties);
+        return new ResponseEntity<>(recording.getId(), HttpStatus.OK);
     }
 
     /**
@@ -107,9 +104,11 @@ public class VideoController {
     public ResponseEntity<Recording> stopRecording(@PathVariable("recordingId") String recordingId)
             throws OpenViduJavaClientException, OpenViduHttpException {
         System.out.println("녹화중지");
-        Recording recording = openViduService.stopRecording(recordingId);
+        Recording recording = openvidu.stopRecording(recordingId);
         return new ResponseEntity<>(recording, HttpStatus.OK);
     }
+
+
 
     /**
      * Get a list of all recordings
@@ -117,7 +116,7 @@ public class VideoController {
      */
     @GetMapping("/recordings")
     public ResponseEntity<List<Recording>> listRecordings() throws OpenViduJavaClientException, OpenViduHttpException {
-        List<Recording> recordings = openViduService.listRecordings();
+        List<Recording> recordings = openvidu.listRecordings();
         return new ResponseEntity<>(recordings, HttpStatus.OK);
     }
 
@@ -129,7 +128,9 @@ public class VideoController {
     @GetMapping("/recordings/{recordingId}")
     public ResponseEntity<Recording> getRecording(@PathVariable("recordingId") String recordingId)
             throws OpenViduJavaClientException, OpenViduHttpException {
-        Recording recording = openViduService.getRecording(recordingId);
+        Recording recording = openvidu.getRecording(recordingId);
         return new ResponseEntity<>(recording, HttpStatus.OK);
     }
+
+
 }

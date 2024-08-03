@@ -1,103 +1,94 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { OpenVidu } from 'openvidu-browser';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { OpenVidu, Session, StreamEvent, Publisher, Subscriber } from "openvidu-browser";
+import axios from "axios";
+import OpenViduVideoComponent from "./OpenViduVideoComponent.tsx";
 
-const SessionComponent = ({ sessionName }) => {
-    const videoContainerRef = useRef(null);
-    const [publisher, setPublisher] = useState(null);
-    const [subscribers, setSubscribers] = useState([]);
-    const [session, setSession] = useState(null);
+const APPLICATION_SERVER_URL = import.meta.env.VITE_APPLICATION_SERVER_URL;
+
+const SessionPage: React.FC = () => {
+    const location = useLocation();
+    const { mySessionId, myUserName } = location.state || {};
+    const [session, setSession] = useState<Session | undefined>();
+    const [mainStreamManager, setMainStreamManager] = useState<Publisher | undefined>();
+    const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
 
     useEffect(() => {
+        joinSession();
+        return () => leaveSession();
+    }, []);
+
+    const getToken = async (sessionId: string) => {
+        console.log("getToken", `${APPLICATION_SERVER_URL}/api/video/sessions/${sessionId}/connections`);
+        const response = await axios.post(`${APPLICATION_SERVER_URL}/api/video/sessions/${sessionId}/connections`, {});
+        console.log("getToken response");
+        console.log(response);
+        return response.data;
+    };
+
+    const joinSession = async () => {
+        const OV = new OpenVidu();
+        const session = OV.initSession();
+
+        session.on("streamCreated", (event: StreamEvent) => {
+            const subscriber = session.subscribe(event.stream, undefined);
+            setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
+        });
+
+        session.on("streamDestroyed", (event: StreamEvent) => {
+            setSubscribers((prevSubscribers) => prevSubscribers.filter((subscriber) => subscriber !== event.stream.streamManager));
+        });
+
+        const token = await getToken(mySessionId);
+        await session.connect(token, { clientData: myUserName });
+
+        const publisher = OV.initPublisher(undefined, {
+            audioSource: undefined,
+            videoSource: undefined,
+            publishAudio: true,
+            publishVideo: true,
+            resolution: "640x480",
+            frameRate: 30,
+            insertMode: "APPEND",
+            mirror: true,
+        });
+
+        session.publish(publisher);
+
+        setSession(session);
+        setMainStreamManager(publisher);
+    };
+
+    const leaveSession = () => {
         if (session) {
-            session.on('streamCreated', (event) => {
-                const subscriber = session.subscribe(event.stream, undefined);
-                setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
-            });
-
-            session.on('streamDestroyed', (event) => {
-                setSubscribers((prevSubscribers) => prevSubscribers.filter(sub => sub !== event.stream.streamManager));
-            });
-        }
-
-        return () => {
-            if (session) {
-                session.off('streamCreated');
-                session.off('streamDestroyed');
-            }
-        };
-    }, [session]);
-
-    useEffect(() => {
-        if (publisher && videoContainerRef.current) {
-            const videoElement = document.createElement('video');
-            videoElement.autoplay = true;
-            videoElement.controls = false;
-            videoElement.srcObject = publisher.stream.getMediaStream();
-            videoContainerRef.current.appendChild(videoElement);
-        }
-    }, [publisher]);
-
-    useEffect(() => {
-        if (subscribers.length > 0 && videoContainerRef.current) {
-            subscribers.forEach((subscriber) => {
-                const videoElement = document.createElement('video');
-                videoElement.autoplay = true;
-                videoElement.controls = false;
-                videoElement.srcObject = subscriber.stream.getMediaStream();
-                videoContainerRef.current.appendChild(videoElement);
-            });
-        }
-    }, [subscribers]);
-
-    const startSession = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8080/api/video/get-token?sessionName=${sessionName}`);
-            const token = response.data;
-            console.log('Token received:', token);
-
-            if (!token) {
-                throw new Error('Failed to retrieve token');
-            }
-
-            const OV = new OpenVidu();
-            const mySession = OV.initSession();
-
-            mySession.on('streamCreated', (event) => {
-                const subscriber = mySession.subscribe(event.stream, undefined);
-                setSubscribers((prevSubscribers) => [...prevSubscribers, subscriber]);
-            });
-
-            mySession.on('streamDestroyed', (event) => {
-                setSubscribers((prevSubscribers) => prevSubscribers.filter(sub => sub !== event.stream.streamManager));
-            });
-
-            await mySession.connect(token, { clientData: 'My User Name' });
-            const myPublisher = OV.initPublisher(undefined, {
-                audioSource: undefined, // The source of audio. If undefined default microphone
-                videoSource: undefined, // The source of video. If undefined default webcam
-                publishAudio: true,     // Whether you want to start publishing with your audio unmuted or not
-                publishVideo: true,     // Whether you want to start publishing with your video enabled or not
-                resolution: '640x480',  // The resolution of your video
-                frameRate: 30,          // The frame rate of your video
-                insertMode: 'APPEND',   // How the video is inserted in the target element 'video-container'
-                mirror: false           // Whether to mirror your local video or not
-            });
-
-            mySession.publish(myPublisher);
-            setPublisher(myPublisher);
-            setSession(mySession);
-        } catch (error) {
-            console.error('There was an error connecting to the session:', error);
+            session.disconnect();
+            setSession(undefined);
+            setMainStreamManager(undefined);
+            setSubscribers([]);
         }
     };
 
     return (
         <div>
-            <button onClick={startSession}>Start Session</button>
-            <div ref={videoContainerRef}></div>
+            {session ? (
+                <div>
+                    <div>{mainStreamManager && <OpenViduVideoComponent streamManager={mainStreamManager} />}</div>
+                    <div>
+                        {subscribers.map((sub, i) => (
+                            <OpenViduVideoComponent key={i} streamManager={sub} />
+                        ))}
+                    </div>
+                    <button onClick={leaveSession}>Leave Session</button>
+                </div>
+            ) : (
+                <div>
+                    <h1>Session {mySessionId}</h1>
+                    <h2>Username: {myUserName}</h2>
+                    <button onClick={joinSession}>Join Session</button>
+                </div>
+            )}
         </div>
     );
 };
 
-export default SessionComponent;
+export default SessionPage;
