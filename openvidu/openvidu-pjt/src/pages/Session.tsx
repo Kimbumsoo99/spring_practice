@@ -18,15 +18,26 @@ const SessionPage: React.FC = () => {
         return () => leaveSession();
     }, []);
 
+    const createSession = async (sessionId: string) => {
+        console.log("createSession", `${APPLICATION_SERVER_URL}/api/video/sessions`);
+        const response = await axios.post(`${APPLICATION_SERVER_URL}/api/video/sessions`, {
+            customSessionId: sessionId,
+        });
+        console.log("createSession response");
+        console.log(response);
+        return response.data; // sessionId를 반환
+    };
+
     const getToken = async (sessionId: string) => {
         console.log("getToken", `${APPLICATION_SERVER_URL}/api/video/sessions/${sessionId}/connections`);
-        const response = await axios.post(`${APPLICATION_SERVER_URL}/api/video/sessions/${sessionId}/connections`, {});
+        const response = await axios.post(`${APPLICATION_SERVER_URL}/api/video/sessions/${sessionId}/connections`);
         console.log("getToken response");
         console.log(response);
         return response.data;
     };
 
     const joinSession = async () => {
+        console.log("joinSession", mySessionId, myUserName);
         const OV = new OpenVidu();
         const session = OV.initSession();
 
@@ -39,7 +50,11 @@ const SessionPage: React.FC = () => {
             setSubscribers((prevSubscribers) => prevSubscribers.filter((subscriber) => subscriber !== event.stream.streamManager));
         });
 
-        const token = await getToken(mySessionId);
+        // mySessionId를 사용하여 세션을 생성하고 세션 ID를 받아옴
+        const sessionId = await createSession(mySessionId);
+
+        // 토큰을 받아옴
+        const token = await getToken(sessionId);
         await session.connect(token, { clientData: myUserName });
 
         const publisher = OV.initPublisher(undefined, {

@@ -48,8 +48,21 @@ public class VideoController {
             params.put("forcedVideoCodec", "VP8"); // 올바른 값으로 변경
         }
 
-        SessionProperties properties = SessionProperties.fromJson(params).build();
+        // customSessionId 설정
+        String customSessionId = params != null && params.containsKey("customSessionId") ?
+                params.get("customSessionId").toString() :
+                null;
+
+        SessionProperties.Builder propertiesBuilder = SessionProperties.fromJson(params);
+        if (customSessionId != null) {
+            propertiesBuilder.customSessionId(customSessionId);
+        }
+
+        SessionProperties properties = propertiesBuilder.build();
         Session session = openvidu.createSession(properties);
+
+//        SessionProperties properties = SessionProperties.fromJson(params).build();
+//        Session session = openvidu.createSession(properties);
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
 
@@ -64,6 +77,7 @@ public class VideoController {
             throws OpenViduJavaClientException, OpenViduHttpException {
         log.info("Connection SessionId - {}", sessionId);
         Session session = openvidu.getActiveSession(sessionId);
+        log.info("session - {}", session);
         if (session == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
