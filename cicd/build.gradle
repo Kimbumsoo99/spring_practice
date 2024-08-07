@@ -4,7 +4,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.6'
 }
 
-group = 'com.rtc'
+group = 'com.demo'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -24,19 +24,18 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-batch'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-
-	implementation 'org.apache.httpcomponents.client5:httpclient5:5.1'
-	implementation 'org.apache.httpcomponents.core5:httpcore5:5.1'
-
-	// OpenVidu Dependency
-	implementation 'io.openvidu:openvidu-java-client:2.30.0'
-	implementation 'org.apache.httpcomponents:httpclient:4.5.14'
-
-
 	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.batch:spring-batch-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
