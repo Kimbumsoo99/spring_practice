@@ -47,14 +47,17 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("your-dockerhub-username/cicd:latest")
+                    // Dockerfile이 있는 디렉토리로 이동하여 Docker 이미지를 빌드
+                    dir('cicd') {
+                        dockerImage = docker.build("your-dockerhub-username/cicd:latest", ".")
+                    }
                 }
             }
         }
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'DOCKERHUB_CREDENTIALS') {
+                    docker.withRegistry('https://index.docker.io/v1/', env.DOCKERHUB_CREDENTIALS) {
                         dockerImage.push()
                     }
                 }
@@ -63,7 +66,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    dockerImage.run('-p 8080:8080')
+                    dockerImage.run('-p 8080:8080")
                 }
             }
         }
