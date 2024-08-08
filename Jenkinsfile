@@ -66,7 +66,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    dockerImage.run('-p 8080:8080")
+                    dockerImage.run('-p 8080:8080')
                 }
             }
         }
