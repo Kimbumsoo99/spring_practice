@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials-id') // DockerHub Credentials ID
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // DockerHub Credentials ID
+        GIT_CREDENTIALS = 'github-credentials' // GitHub Credentials ID
     }
 
     triggers {
@@ -14,28 +15,32 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Git 리포지토리에서 소스 코드 체크아웃
-                git url: 'https://github.com/Kimbumsoo99/spring_practice.git', branch: 'main'
+                git url: 'https://github.com/Kimbumsoo99/spring_practice.git', branch: 'main', credentialsId: env.GIT_CREDENTIALS
             }
         }
         stage('Build') {
             steps {
-                // Gradle 빌드
-                bat './gradlew build'
+                dir('cicd') {
+                    // Gradle 빌드
+                    bat './gradlew build'
+                }
             }
         }
         stage('Test') {
             steps {
-                // Gradle 테스트 실행
-                bat './gradlew test'
+                dir('cicd') {
+                    // Gradle 테스트 실행
+                    bat './gradlew test'
+                }
             }
             post {
                 always {
                     // JUnit 테스트 결과 보고서 수집
-                    junit 'build/test-results/test/*.xml'
+                    junit 'cicd/build/test-results/test/*.xml'
                 }
                 failure {
                     // 테스트 실패 시 아티팩트 아카이브
-                    archiveArtifacts 'build/reports/tests/test/*.html'
+                    archiveArtifacts 'cicd/build/reports/tests/test/*.html'
                 }
             }
         }
