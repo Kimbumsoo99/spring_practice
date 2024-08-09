@@ -29,7 +29,7 @@ RUN if [ ! -f "/app/gradlew" ]; then \
 COPY src /app/src
 
 # Build the application without running tests
-RUN /app/gradlew build --no-daemon -x test
+RUN /app/gradlew bootJar --no-daemon -x test
 
 # Copy the built JAR file to the image
 COPY build/libs/*.jar /app/app.jar
