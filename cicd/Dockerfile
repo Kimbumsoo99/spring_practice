@@ -14,6 +14,9 @@ COPY gradle /app/gradle
 # Ensure the Gradle wrapper script has execute permissions
 RUN chmod +x /app/gradlew
 
+# Check if gradlew is copied correctly
+RUN ls -l /app/gradlew
+
 # Install curl to download the Gradle Wrapper if it does not exist
 RUN apk add --no-cache curl
 
@@ -43,4 +46,4 @@ ENV SPRING_DATASOURCE_USERNAME=ssafy
 ENV SPRING_DATASOURCE_PASSWORD=ssafy
 
 # Command to run the application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPO
