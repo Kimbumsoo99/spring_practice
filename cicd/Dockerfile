@@ -14,7 +14,7 @@ COPY gradle /app/gradle
 # Ensure the Gradle wrapper script has execute permissions
 RUN chmod +x /app/gradlew
 
-# 추가적인 확인: 파일이 올바르게 복사되었는지 확인
+# Additional verification: List files to confirm gradlew is present
 RUN ls -l /app/gradlew && cat /app/gradlew
 
 # Install curl to download the Gradle Wrapper if it does not exist
