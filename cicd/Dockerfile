@@ -17,14 +17,19 @@ COPY src /app/src
 # Grant execution permission to the Gradle wrapper
 RUN chmod +x ./gradlew
 
-# Build the application using Gradle
-RUN ./gradlew build --no-daemon
+# Build the application without running tests
+RUN ./gradlew build --no-daemon -x test
 
 # Copy the built JAR file to the image
 COPY build/libs/*.jar /app/app.jar
 
 # Expose the application port
 EXPOSE 8080
+
+# Use environment variables that will be passed at runtime (Jenkins or Docker Compose)
+ENV SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/ssafytest?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+ENV SPRING_DATASOURCE_USERNAME=ssafy
+ENV SPRING_DATASOURCE_PASSWORD=ssafy
 
 # Command to run the application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

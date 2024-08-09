@@ -66,7 +66,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    dockerImage.run('-p 8080:8080')
+                    // MySQL 자격 증명을 안전하게 주입하기 위해 withCredentials 블록 사용
+                    withCredentials([usernamePassword(credentialsId: 'mysql-credentials', usernameVariable: 'DB_USER', passwordVariable: 'DB_PASS')]) {
+                        dockerImage.run("-e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/ssafytest -e SPRING_DATASOURCE_USERNAME=${DB_USER} -e SPRING_DATASOURCE_PASSWORD=${DB_PASS} -p 8080:8080")
+                    }
                 }
             }
         }
