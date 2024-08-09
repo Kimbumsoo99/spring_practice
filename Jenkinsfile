@@ -49,7 +49,7 @@ pipeline {
                 script {
                     // Dockerfile이 있는 디렉토리로 이동하여 Docker 이미지를 빌드
                     dir('cicd') {
-                        dockerImage = docker.build("your-dockerhub-username/cicd:latest", ".")
+                        dockerImage = docker.build("kimbumsoo99/cicd:latest", ".")
                     }
                 }
             }
