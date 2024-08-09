@@ -17,7 +17,7 @@ pipeline {
             steps {
                 script {
                     dir('cicd') {
-                        // Windows 환경에서는 bat 명령어를 사용하여 Docker 이미지를 빌드합니다.
+                        // Docker 이미지를 빌드합니다.
                         bat 'docker build --no-cache -t kimbumsoo99/cicd:latest .'
                     }
                 }
@@ -27,7 +27,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', env.DOCKERHUB_CREDENTIALS) {
-                        // 이미지를 푸시합니다.
+                        // Docker Hub에 이미지를 푸시합니다.
                         bat 'docker push kimbumsoo99/cicd:latest'
                     }
                 }
