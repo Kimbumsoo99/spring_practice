@@ -7,26 +7,26 @@ LABEL maintainer="show7441@gmail.com"
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the build.gradle, settings.gradle, and Gradle wrapper scripts (if they exist)
-COPY build.gradle settings.gradle gradlew* /app/
-COPY gradle /app/gradle || true
-
-# Install curl to download the Gradle Wrapper if it does not exist
-RUN apk add --no-cache curl
-
-# If gradlew does not exist, generate the Gradle Wrapper
-RUN if [ ! -f ./gradlew ]; then \
-        curl -sSLO https://services.gradle.org/distributions/gradle-8.8-bin.zip && \
-        unzip gradle-8.8-bin.zip && \
-        rm gradle-8.8-bin.zip && \
-        ./gradle-8.8/bin/gradle wrapper; \
-    fi
+# Copy the build.gradle, settings.gradle, and Gradle wrapper scripts
+COPY build.gradle settings.gradle gradlew /app/
+COPY gradle /app/gradle
 
 # Ensure the Gradle wrapper script has execute permissions
 RUN chmod +x ./gradlew
 
 # Copy the entire project source code to the working directory
 COPY src /app/src
+
+# Install curl to download the Gradle Wrapper if it does not exist
+RUN apk add --no-cache curl
+
+# If gradlew does not exist, generate the Gradle Wrapper
+RUN if [ ! -f "./gradlew" ]; then \
+        curl -sSLO https://services.gradle.org/distributions/gradle-8.8-bin.zip && \
+        unzip gradle-8.8-bin.zip && \
+        rm gradle-8.8-bin.zip && \
+        ./gradle-8.8/bin/gradle wrapper; \
+    fi
 
 # Build the application without running tests
 RUN ./gradlew build --no-daemon -x test
@@ -37,7 +37,7 @@ COPY build/libs/*.jar /app/app.jar
 # Expose the application port
 EXPOSE 8080
 
-# Use environment variables that will be passed at runtime
+# Environment variables for runtime configuration (can be overridden by Jenkins)
 ENV SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/ssafytest?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
 ENV SPRING_DATASOURCE_USERNAME=ssafy
 ENV SPRING_DATASOURCE_PASSWORD=ssafy
