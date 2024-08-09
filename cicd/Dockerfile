@@ -14,6 +14,9 @@ COPY gradle /app/gradle
 # Ensure the Gradle wrapper script has execute permissions
 RUN chmod +x /app/gradlew
 
+# Check if gradlew is copied correctly
+RUN ls -l /app/gradlew
+
 # Install curl to download the Gradle Wrapper if it does not exist
 RUN apk add --no-cache curl
 
@@ -37,5 +40,5 @@ COPY build/libs/*.jar /app/app.jar
 # Expose the application port
 EXPOSE 8080
 
-# Correct ENTRYPOINT instruction
+# Command to run the application
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
