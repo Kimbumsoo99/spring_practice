@@ -1,27 +1,30 @@
-# Base image
+# Base image: OpenJDK 17 with Alpine Linux
 FROM bellsoft/liberica-openjdk-alpine:17
 
-# Maintainer
+# Maintainer info
 LABEL maintainer="show7441@gmail.com"
 
-# Set the working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the build.gradle and gradle wrapper
+# Copy the build.gradle, settings.gradle, and Gradle wrapper scripts
 COPY build.gradle settings.gradle gradlew /app/
 COPY gradle /app/gradle
 
-# Copy the source code
+# Copy the entire project source code to the working directory
 COPY src /app/src
 
-# Build the application
+# Grant execution permission to the Gradle wrapper
+RUN chmod +x ./gradlew
+
+# Build the application using Gradle
 RUN ./gradlew build --no-daemon
 
-# Copy the built jar file to the image
-COPY build/libs/cicd-0.0.1-SNAPSHOT.jar /app/cicd-0.0.1-SNAPSHOT.jar
+# Copy the built JAR file to the image
+COPY build/libs/*.jar /app/app.jar
 
 # Expose the application port
 EXPOSE 8080
 
-# Entry point to run the application
-ENTRYPOINT ["java", "-jar", "/app/cicd-0.0.1-SNAPSHOT.jar"]
+# Command to run the application
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
