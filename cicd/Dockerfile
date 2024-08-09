@@ -1,38 +1,24 @@
-# Base image: OpenJDK 17 with Alpine Linux
+# Base image
 FROM bellsoft/liberica-openjdk-alpine:17
 
-# Maintainer info
-LABEL maintainer="show7441@gmail.com"
-
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy the build.gradle, settings.gradle, and Gradle wrapper scripts
+# Copy Gradle wrapper and build configuration files
 COPY build.gradle settings.gradle gradlew /app/
 COPY gradle /app/gradle
 
 # Ensure the Gradle wrapper script has execute permissions
 RUN chmod +x /app/gradlew
 
-# Additional verification: List files to confirm gradlew is present
-RUN ls -l /app/gradlew && cat /app/gradlew
-
-# Install curl to download the Gradle Wrapper if it does not exist
-RUN apk add --no-cache curl
-
-# If gradlew does not exist, generate the Gradle Wrapper
-RUN if [ ! -f "/app/gradlew" ]; then \
-        curl -sSLO https://services.gradle.org/distributions/gradle-8.8-bin.zip && \
-        unzip gradle-8.8-bin.zip && \
-        rm gradle-8.8-bin.zip && \
-        ./gradle-8.8/bin/gradle wrapper; \
-    fi
-
-# Copy the entire project source code to the working directory
+# Copy the entire project source code
 COPY src /app/src
 
+# Verify the existence and permissions of gradlew
+RUN ls -l /app && echo "Gradle wrapper exists" || echo "Gradle wrapper does not exist"
+
 # Build the application without running tests
-RUN /app/gradlew bootJar --no-daemon -x test
+RUN ./gradlew bootJar --no-daemon -x test
 
 # Copy the built JAR file to the image
 COPY build/libs/*.jar /app/app.jar
