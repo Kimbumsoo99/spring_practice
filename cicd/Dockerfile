@@ -14,9 +14,6 @@ COPY gradle /app/gradle
 # Ensure the Gradle wrapper script has execute permissions
 RUN chmod +x /app/gradlew
 
-# Check if gradlew is copied correctly
-RUN ls -l /app/gradlew
-
 # Install curl to download the Gradle Wrapper if it does not exist
 RUN apk add --no-cache curl
 
@@ -40,10 +37,5 @@ COPY build/libs/*.jar /app/app.jar
 # Expose the application port
 EXPOSE 8080
 
-# Environment variables for runtime configuration (can be overridden by Jenkins)
-ENV SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/ssafytest?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-ENV SPRING_DATASOURCE_USERNAME=ssafy
-ENV SPRING_DATASOURCE_PASSWORD=ssafy
-
-# Command to run the application
-ENTRYPO
+# Correct ENTRYPOINT instruction
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
