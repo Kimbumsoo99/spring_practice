@@ -1,0 +1,7 @@
+# 개발환경 관련
+docker-compose -f docker-compose.dev.yml up --build
+# 배포환경 관련
+docker-compose -f docker-compose.prod.yml up --build
+
+# DB 실행 확인용
+docker exec -it cicd-db-1 bash
