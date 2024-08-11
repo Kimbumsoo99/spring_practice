@@ -5,3 +5,19 @@ docker-compose -f docker-compose.prod.yml up --build
 
 # DB 실행 확인용
 docker exec -it cicd-db-1 bash
+
+
+# 도커 컴포즈 파일 내렸다가 다시 올리기
+# 도커 컴포즈 서비스 정지
+docker-compose -f docker-compose.dev.yml down
+# 도커 컴포즈 이미지 다시 빌드
+docker-compose -f docker-compose.dev.yml build --no-cache
+# 도커 컴포즈 서비스 다시 실행
+docker-compose -f docker-compose.dev.yml up -d
+# 도커 실행 컨테이너 확인
+docker-compose -f docker-compose.dev.yml ps
+
+# MySQL 컨테이너에 접속
+docker exec -it <mysql_container_name> mysql -u root -p
+# 예: docker exec -it cicd-mysql-1 mysql -u root -p
+

@@ -1,48 +1,33 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // DockerHub Credentials ID
-        GIT_CREDENTIALS = 'github-credentials' // GitHub Credentials ID
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                // Git 리포지토리에서 소스 코드 체크아웃
-                git url: 'https://github.com/Kimbumsoo99/spring_practice.git', branch: 'main', credentialsId: env.GIT_CREDENTIALS
+                // Git 리포지토리에서 소스 코드를 체크아웃
+                checkout scm
             }
         }
-        stage('Build Docker Image') {
+
+        stage('Build and Run Docker Compose') {
             steps {
                 script {
+                    // cicd 디렉토리로 이동하여 docker-compose.dev.yml 실행
                     dir('cicd') {
-                        // Docker 이미지를 빌드합니다.
-                        bat 'docker build --no-cache -t kimbumsoo99/cicd:latest .'
+                        // docker-compose 명령어를 실행하면서 Jenkins에 등록된 환경변수를 자동으로 사용
+                        sh 'docker-compose -f docker-compose.dev.yml up --build -d'
                     }
                 }
             }
         }
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', env.DOCKERHUB_CREDENTIALS) {
-                        // Docker Hub에 이미지를 푸시합니다.
-                        bat 'docker push kimbumsoo99/cicd:latest'
-                    }
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                script {
-                    // MySQL 자격 증명을 안전하게 주입하기 위해 withCredentials 블록 사용
-                    withCredentials([usernamePassword(credentialsId: 'mysql-credentials', usernameVariable: 'DB_USER', passwordVariable: 'DB_PASS')]) {
-                        bat 'docker run -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/ssafytest ' +
-                            '-e SPRING_DATASOURCE_USERNAME=%DB_USER% ' +
-                            '-e SPRING_DATASOURCE_PASSWORD=%DB_PASS% ' +
-                            '-p 8080:8080 kimbumsoo99/cicd:latest'
-                    }
+    }
+
+    post {
+        always {
+            script {
+                // 빌드 후, 컨테이너를 내려도 되는 경우 이 섹션에서 처리합니다.
+                dir('cicd') {
+                    sh 'docker-compose -f docker-compose.dev.yml down'
                 }
             }
         }

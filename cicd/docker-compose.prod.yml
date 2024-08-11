@@ -1,22 +1,14 @@
 version: '3.8'
+
 services:
   app:
+    image: cicd-app
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      SPRING_PROFILES_ACTIVE: ${PROD_SPRING_PROFILES_ACTIVE}
-    depends_on:
-      - db
-
-  db:
-    image: mysql:5.7
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "3306:3306"
+      - SPRING_PROFILES_ACTIVE=prod
