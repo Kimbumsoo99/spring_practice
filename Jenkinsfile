@@ -24,16 +24,13 @@ pipeline {
             }
         }
     }
-
     post {
-        always {
+        failure {
             script {
-                if (isUnix()) {
-                    dir('cicd') {
+                dir('cicd') {
+                    if (isUnix()) {
                         sh 'docker-compose -f docker-compose.dev.yml down'
-                    }
-                } else {
-                    dir('cicd') {
+                    } else {
                         bat 'docker-compose -f docker-compose.dev.yml down'
                     }
                 }
