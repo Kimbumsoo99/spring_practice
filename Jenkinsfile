@@ -14,8 +14,13 @@ pipeline {
                 script {
                     // cicd 디렉토리로 이동하여 docker-compose.dev.yml 실행
                     dir('cicd') {
-                        // docker-compose 명령어를 실행하면서 Jenkins에 등록된 환경변수를 자동으로 사용
-                        sh 'docker-compose -f docker-compose.dev.yml up --build -d'
+                        if (isUnix()) {
+                            // Linux/Unix 환경
+                            sh 'docker-compose -f docker-compose.dev.yml up --build -d'
+                        } else {
+                            // Windows 환경
+                            bat 'docker-compose -f docker-compose.dev.yml up --build -d'
+                        }
                     }
                 }
             }
@@ -25,9 +30,15 @@ pipeline {
     post {
         always {
             script {
-                // 빌드 후, 컨테이너를 내려도 되는 경우 이 섹션에서 처리합니다.
+                // 빌드 후, 컨테이너를 내리는 작업
                 dir('cicd') {
-                    sh 'docker-compose -f docker-compose.dev.yml down'
+                    if (isUnix()) {
+                        // Linux/Unix 환경
+                        sh 'docker-compose -f docker-compose.dev.yml down'
+                    } else {
+                        // Windows 환경
+                        bat 'docker-compose -f docker-compose.dev.yml down'
+                    }
                 }
             }
         }
