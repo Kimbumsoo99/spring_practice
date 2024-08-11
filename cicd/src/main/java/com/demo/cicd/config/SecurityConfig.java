@@ -30,8 +30,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        log.info("Frontend Server URL: {}", frontendServerUrl); // 추가된 로그
+
         http
-                .cors(corsConfigurer -> corsConfigurer.configurationSource(apiConfigurationSource()))
+//                .cors(corsConfigurer -> corsConfigurer.configurationSource(apiConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
